@@ -2,266 +2,190 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Phản Hồi Chấm Công</title>
+<title>Dashboard Phản Hồi Chấm Công – WAREHOUSE RYOBI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Chart.js + DataLabels -->
+<!-- Font tiếng Việt chuẩn -->
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<!-- ChartJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <style>
+    /* ======= GLOBAL ======= */
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Be Vietnam Pro', sans-serif;
         margin: 20px;
-        background: #fafafa;
-        color: #111827;
-        transition: background 0.3s, color 0.3s;
+        background: #f5f7fa;
+        transition: background 0.4s, color 0.4s;
     }
 
-    /* Header gradient */
+    body.dark {
+        background: #121212;
+        color: #eaeaea;
+    }
+
+    /* ======= TITLE NEON POSTER ======= */
     h1 {
-        margin-bottom: 5px;
+        font-size: 42px;
         font-weight: 900;
-        font-size: 26px;
-        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        text-align: center;
+        margin-bottom: 15px;
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
         -webkit-background-clip: text;
-        color: transparent;
+        -webkit-text-fill-color: transparent;
+
+        /* Hiệu ứng Glow */
+        text-shadow:
+            0 0 8px rgba(0, 255, 255, 0.5),
+            0 0 16px rgba(0, 128, 255, 0.4),
+            0 0 24px rgba(0, 128, 255, 0.3);
     }
 
     h2 {
-        margin-top: 24px;
-        font-size: 18px;
+        margin-top: 25px;
+        font-size: 26px;
     }
 
-    h3 {
-        margin-top: 24px;
-        font-size: 16px;
-    }
-
-    h4 {
-        margin: 0 0 8px 0;
-        font-size: 14px;
-    }
-
-    /* Search bar */
-    .search-bar {
-        margin-top: 8px;
-        margin-bottom: 8px;
-    }
-
+    /* ======= SEARCH BAR ======= */
     .search-bar input {
         padding: 8px;
-        width: 170px;
+        width: 180px;
         margin-right: 5px;
         border-radius: 6px;
-        border: 1px solid #d1d5db;
-        font-size: 13px;
+        border: 1px solid #bbb;
     }
-
     .search-bar button {
-        padding: 8px 12px;
-        cursor: pointer;
+        padding: 8px 14px;
         border-radius: 6px;
+        cursor: pointer;
         border: none;
-        font-size: 13px;
-        color: #fff;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        transition: 0.2s;
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        color: white;
+        font-weight: 700;
     }
 
-    .search-bar button:hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
+    /* ======= DARK MODE BUTTON ======= */
+    .toggle-dark {
+        float: right;
+        margin-top: -60px;
+        margin-right: 10px;
+        cursor: pointer;
+        background: #222;
+        padding: 10px 14px;
+        color: white;
+        border-radius: 8px;
     }
 
-    /* Table */
+    /* ======= TABLE ======= */
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 16px;
-        background: #ffffff;
-        border-radius: 10px;
+        margin-top: 20px;
+        background: white;
+        border-radius: 12px;
         overflow: hidden;
+        transition: background 0.4s, color 0.4s;
+    }
+    body.dark table {
+        background: #1e1e1e;
+        color: white;
     }
 
     th, td {
         padding: 10px;
-        border-bottom: 1px solid #e5e7eb;
-        font-size: 13px;
-        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
     }
-
     th {
-        background: #f3f4f6;
-        cursor: pointer;
-        user-select: none;
-        font-weight: 600;
+        background: #eef1f5;
     }
-
-    th.sortable::after {
-        content: " ⬍";
-        font-size: 11px;
-        color: #9ca3af;
-    }
-
-    tr:nth-child(even) td {
-        background: #fbfbfb;
+    body.dark th {
+        background: #2c2c2c;
+        color: white;
     }
 
     .badge {
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        color: #fff;
-        white-space: nowrap;
-    }
-
-    .confirm-none { background: #ef4444; }
-    .confirm-done { background: #22c55e; }
-
-    /* Footer charts layout */
-    .chart-row {
-        display: flex;
-        gap: 20px;
-        width: 100%;
-        flex-wrap: wrap;
-        margin-top: 16px;
-    }
-
-    .box {
-        background: #ffffff;
-        padding: 14px;
-        border-radius: 14px;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
-        flex: 1;
-        min-width: 260px;
-    }
-
-    .box-third { flex: 0.33; }
-    .box-two-third { flex: 0.67; }
-    .box-full { flex: 1; }
-
-    canvas {
-        width: 100% !important;
-        height: 260px !important;
-    }
-
-    /* Pagination */
-    .pagination {
-        margin-top: 10px;
-    }
-
-    .pagination button {
-        margin: 0 2px;
-        padding: 4px 8px;
+        padding: 4px 12px;
+        border-radius: 16px;
         font-size: 12px;
-        border-radius: 4px;
-        border: 1px solid #d1d5db;
-        background: #ffffff;
+        color: #fff;
+    }
+    .confirm-none { background: #ff6b6b; }
+    .confirm-done { background: #2ecc71; }
+
+    /* ======= FOOTER CHART LAYOUT ======= */
+    .footer-charts {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+    }
+
+    .chart-box {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        transition: background 0.4s, color 0.4s;
+    }
+    body.dark .chart-box {
+        background: #1e1e1e;
+        color: white;
+    }
+
+    /* ======= PAGINATION ======= */
+    .pagination {
+        margin-top: 15px;
+        text-align: center;
+    }
+    .pagination button {
+        padding: 6px 12px;
+        margin: 2px;
+        border: none;
+        background: #4facfe;
+        color: white;
+        border-radius: 6px;
         cursor: pointer;
     }
 
-    .pagination button.active {
-        background: #2563eb;
-        color: #ffffff;
-        border-color: #2563eb;
-    }
-
-    .pagination button:disabled {
-        opacity: 0.4;
-        cursor: default;
-    }
-
-    /* Hidden audio */
+    /* ======= AUDIO ======= */
     audio { display: none; }
-
-    /* ====== DARK MODE ====== */
-    @media (prefers-color-scheme: dark) {
-        body {
-            background: #111827;
-            color: #e5e7eb;
-        }
-
-        h1 {
-            background: linear-gradient(90deg, #8e9eab 0%, #eef2f3 100%);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        table {
-            background: #1f2933;
-        }
-
-        th {
-            background: #374151 !important;
-            color: #e5e7eb;
-        }
-
-        td {
-            background: #111827;
-            border-bottom: 1px solid #374151;
-            color: #f9fafb !important;
-        }
-
-        tr:nth-child(even) td {
-            background: #1f2933;
-        }
-
-        .box {
-            background: #1f2933;
-            box-shadow: 0 0 12px rgba(0,0,0,0.5);
-        }
-
-        .search-bar input {
-            background: #111827;
-            color: #e5e7eb;
-            border-color: #374151;
-        }
-
-        .search-bar button {
-            background: linear-gradient(90deg, #434343, #000000);
-        }
-
-        .pagination button {
-            background: #111827;
-            border-color: #4b5563;
-            color: #e5e7eb;
-        }
-
-        .pagination button.active {
-            background: #4f46e5;
-            border-color: #4f46e5;
-            color: #e5e7eb;
-        }
-
-        .confirm-none { background: #dc2626; }
-        .confirm-done { background: #16a34a; }
-    }
 </style>
 </head>
 
 <body>
 
-<h1>Dashboard Phản Hồi Chấm Công - WAREHOUSE RYOBI</h1>
-<p>📌 Dữ liệu được cập nhật tự động ❤️🫶❤️</p>
+<h1>Dashboard Phản Hồi Chấm Công – WAREHOUSE RYOBI</h1>
 
-<!-- SEARCH BAR -->
+<div class="toggle-dark" onclick="toggleDark()">🌙 Dark Mode</div>
+
+<p>📌 Dữ liệu cập nhật tự động.</p>
+
+<!-- SEARCH -->
 <div class="search-bar">
-    <input id="searchMSNV" placeholder="Tìm theo MSNV…" oninput="applySearch()">
-    <input id="searchName" placeholder="Tìm theo họ tên…" oninput="applySearch()">
-    <button onclick="resetFilter()">Xóa lọc</button>
+    <input id="searchMSNV" placeholder="Tìm MSNV…">
+    <input id="searchName" placeholder="Tìm họ tên…">
+    <button onclick="applySearch()">Lọc</button>
+    <button onclick="resetFilter()">Xóa</button>
 </div>
 
-<h3>Danh sách chi tiết</h3>
+<h2>Danh sách chi tiết</h2>
 
 <table id="dataTable">
     <thead>
         <tr>
-            <th class="sortable" onclick="sortTable('MSNV')">MSNV</th>
+            <th onclick="sortBy('MSNV')">MSNV ⬍</th>
             <th>Họ tên</th>
-            <th class="sortable" onclick="sortTable('NgayDieuChinh')">Ngày cần điều chỉnh</th>
+            <th onclick="sortBy('NgayDieuChinh')">Ngày điều chỉnh ⬍</th>
             <th>Nội dung</th>
-            <th>Confirm Admin</th>
+            <th>Confirm</th>
             <th>BU</th>
             <th>Team</th>
         </tr>
@@ -269,135 +193,81 @@
     <tbody></tbody>
 </table>
 
-<div id="pagination" class="pagination"></div>
+<div class="pagination" id="pagination"></div>
 
+<!-- FOOTER CHARTS -->
 <h2>Biểu đồ phụ</h2>
 
-<!-- BU + Team -->
-<div class="chart-row">
-    <div class="box box-third">
-        <h4>Theo BU</h4>
-        <canvas id="chartBU"></canvas>
+<div class="footer-charts">
+
+    <div class="row-2">
+        <div class="chart-box">
+            <h3>Theo BU</h3>
+            <canvas id="chartBU"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h3>Theo Team</h3>
+            <canvas id="chartTeam"></canvas>
+        </div>
     </div>
 
-    <div class="box box-two-third">
-        <h4>Theo Team</h4>
-        <canvas id="chartTeam"></canvas>
-    </div>
-</div>
-
-<!-- Top phản hồi -->
-<div class="chart-row">
-    <div class="box box-full">
-        <h4>Top phản hồi</h4>
+    <div class="chart-box">
+        <h3>Top phản hồi</h3>
         <canvas id="chartTop"></canvas>
     </div>
-</div>
 
-<!-- Theo ngày chỉnh -->
-<div class="chart-row">
-    <div class="box box-full">
-        <h4>Theo ngày chỉnh</h4>
-        <canvas id="chartNgayChinh"></canvas>
+    <div class="chart-box">
+        <h3>Theo ngày chỉnh</h3>
+        <canvas id="chartNgay"></canvas>
     </div>
+
 </div>
 
-<!-- BACKGROUND MUSIC -->
+<!-- Background Music -->
 <audio id="bgMusic" loop>
-    <!-- Đổi sang link file của bạn nếu cần -->
-    <source src="videoplayback.m4a" type="audio/mp4">
+    <source src="videoplayback.m4a" type="audio/mpeg">
 </audio>
 
 <script>
-// ================== CONFIG ==================
 const jsonUrl = "https://hoailuan0311-code.github.io/ChamCongDashboard/data.json";
-
-function excelSerialToDate(v) {
-    if (!v) return null;
-    const d = new Date((v - 25569) * 86400 * 1000);
-    return isNaN(d) ? null : d;
-}
-
-function excelDate(v) {
-    const d = excelSerialToDate(v);
-    if (!d) return "";
-    return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
-}
-
 let fullData = [];
-let viewData = [];
-let sortState = {};
-let currentPage = 1;
-const rowsPerPage = 50;
+let tablePage = 1;
+const pageSize = 15;
 
-// chart instances
-let chartBUInstance, chartTeamInstance, chartTopInstance, chartNgayInstance;
-
-// ================== LOAD DATA ==================
+/* ================= LOAD DATA ================= */
 async function loadData() {
-    const res = await fetch(jsonUrl + "?cache=" + Date.now());
+    let res = await fetch(jsonUrl + "?cache=" + Date.now());
     fullData = await res.json();
-    viewData = [...fullData];
-    currentPage = 1;
-    renderAll(viewData);
+    renderAll(fullData);
 }
 loadData();
 
-// ================== PAGINATION ==================
-function paginate(data) {
-    const start = (currentPage - 1) * rowsPerPage;
-    return data.slice(start, start + rowsPerPage);
+/* ================= DATE FORMAT ================= */
+function excelDate(v){
+    if (!v) return "";
+    const d = new Date((v - 25569) * 86400 * 1000);
+    return isNaN(d) ? v : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 }
 
-function renderPagination(totalRows) {
-    const container = document.getElementById("pagination");
-    container.innerHTML = "";
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
-    if (totalPages <= 1) return;
-
-    const makeBtn = (text, page, disabled = false, active = false) => {
-        const btn = document.createElement("button");
-        btn.textContent = text;
-        if (disabled) btn.disabled = true;
-        if (active) btn.classList.add("active");
-        btn.onclick = () => {
-            if (!disabled) {
-                currentPage = page;
-                renderAll(viewData);
-            }
-        };
-        container.appendChild(btn);
-    };
-
-    makeBtn("«", 1, currentPage === 1);
-    makeBtn("<", Math.max(1, currentPage - 1), currentPage === 1);
-
-    for (let p = 1; p <= totalPages; p++) {
-        makeBtn(p, p, false, p === currentPage);
-    }
-
-    makeBtn(">", Math.min(totalPages, currentPage + 1), currentPage === totalPages);
-    makeBtn("»", totalPages, currentPage === totalPages);
-}
-
-// ================== RENDER EVERYTHING ==================
-function renderAll(data) {
-    const pageData = paginate(data);
-    renderTable(pageData);
-    renderPagination(data.length);
-    destroyCharts();
+/* ================= RENDER ALL ================= */
+function renderAll(data){
+    renderTable(data);
     renderBU(data);
     renderTeam(data);
     renderTop(data);
-    renderNgayChinh(data);
+    renderNgay(data);
 }
 
-// ================== TABLE ==================
-function renderTable(data) {
-    const tbody = document.querySelector("#dataTable tbody");
+/* ================= TABLE ================= */
+function renderTable(data){
+    let tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
 
-    data.forEach(r => {
+    let start = (tablePage - 1) * pageSize;
+    let pageData = data.slice(start, start + pageSize);
+
+    pageData.forEach(r => {
         tbody.innerHTML += `
         <tr>
             <td>${r.MSNV || ""}</td>
@@ -407,220 +277,129 @@ function renderTable(data) {
             <td><span class="badge ${r.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
                 ${r.ConfirmAdmin || "Chưa phản hồi"}
             </span></td>
-            <td>${r.BU || ""}</td>
-            <td>${r.Team || ""}</td>
+            <td>${r.BU}</td>
+            <td>${r.Team}</td>
         </tr>`;
     });
+
+    renderPagination(data.length);
 }
 
-// ================== SORT ==================
-function sortTable(column) {
-    sortState[column] = !sortState[column];
+/* ================= PAGINATION ================= */
+function renderPagination(total){
+    let pages = Math.ceil(total / pageSize);
+    let div = document.getElementById("pagination");
+    div.innerHTML = "";
 
-    viewData.sort((a, b) => {
-        let valA = a[column];
-        let valB = b[column];
-
-        if (column === "MSNV") {
-            valA = Number(valA) || 0;
-            valB = Number(valB) || 0;
-        }
-
-        if (column === "NgayDieuChinh") {
-            valA = excelSerialToDate(valA);
-            valB = excelSerialToDate(valB);
-        }
-
-        if (valA < valB) return sortState[column] ? -1 : 1;
-        if (valA > valB) return sortState[column] ? 1 : -1;
-        return 0;
-    });
-
-    currentPage = 1;
-    renderAll(viewData);
+    for (let i = 1; i <= pages; i++){
+        div.innerHTML += `<button onclick="goPage(${i})">${i}</button>`;
+    }
 }
 
-// ================== SEARCH ==================
-function applySearch() {
-    const msnv = document.getElementById("searchMSNV").value.trim().toLowerCase();
-    const name = document.getElementById("searchName").value.trim().toLowerCase();
+function goPage(p){
+    tablePage = p;
+    renderAll(fullData);
+}
 
-    viewData = fullData.filter(r =>
-        (!msnv || (r.MSNV || "").toString().toLowerCase().includes(msnv)) &&
-        (!name || (r.FullName || "").toLowerCase().includes(name))
+/* ================= SEARCH ================= */
+function applySearch(){
+    let ms = searchMSNV.value.toLowerCase();
+    let nm = searchName.value.toLowerCase();
+
+    let f = fullData.filter(r =>
+        (!ms || (r.MSNV+"").toLowerCase().includes(ms)) &&
+        (!nm || (r.FullName+"").toLowerCase().includes(nm))
     );
-
-    currentPage = 1;
-    renderAll(viewData);
+    renderAll(f);
 }
 
-function resetFilter() {
-    document.getElementById("searchMSNV").value = "";
-    document.getElementById("searchName").value = "";
-    viewData = [...fullData];
-    currentPage = 1;
-    renderAll(viewData);
+function resetFilter(){
+    searchMSNV.value = "";
+    searchName.value = "";
+    renderAll(fullData);
 }
 
-// ================== CHART ANIMATION CONFIG ==================
-function barAnimateCfg() {
-    return {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-            duration: 1200,
-            easing: "easeOutElastic"
-        },
-        animations: {
-            y: {
-                delay: ctx => ctx.dataIndex * 70
-            }
-        },
-        plugins: {
-            legend: { display: false },
-            datalabels: {
-                anchor: "end",
-                align: "top",
-                color: "#111827",
-                font: { weight: "bold", size: 11 },
-                formatter: v => v
-            }
-        },
-        scales: {
-            x: { ticks: { autoSkip: true, maxRotation: 45, minRotation: 0 } },
-            y: { beginAtZero: true, precision: 0 }
-        }
-    };
+/* ================= SORTING ================= */
+function sortBy(col){
+    fullData.sort((a,b)=> (a[col] > b[col] ? 1 : -1));
+    renderAll(fullData);
 }
 
-function pieAnimateCfg() {
-    return {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-            animateRotate: true,
-            animateScale: true,
-            duration: 1000
-        },
-        plugins: {
-            legend: { position: "bottom" },
-            datalabels: {
-                color: "#ffffff",
-                font: { weight: "bold", size: 11 },
-                formatter: v => v
-            }
-        }
-    };
-}
+/* ================= CHARTS ================= */
+function renderBU(data){
+    const c = {};
+    data.forEach(r => c[r.BU] = (c[r.BU] || 0) + 1);
 
-// ================== DESTROY OLD CHARTS ==================
-function destroyCharts() {
-    [chartBUInstance, chartTeamInstance, chartTopInstance, chartNgayInstance].forEach(c => {
-        if (c) c.destroy();
-    });
-    chartBUInstance = chartTeamInstance = chartTopInstance = chartNgayInstance = null;
-}
-
-// ================== CHARTS ==================
-function renderTop(data) {
-    const counts = {};
-    data.forEach(r => {
-        if (!r.FullName) return;
-        counts[r.FullName] = (counts[r.FullName] || 0) + 1;
-    });
-    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
-
-    chartTopInstance = new Chart(document.getElementById("chartTop"), {
-        type: "bar",
-        data:{
-            labels: sorted.map(x => x[0]),
-            datasets:[{
-                label: "Số phản hồi",
-                data: sorted.map(x => x[1]),
-                backgroundColor:"#4C8BF5"
-            }]
-        },
-        plugins: [ChartDataLabels],
-        options: barAnimateCfg()
-    });
-}
-
-function renderBU(data) {
-    const counts = {};
-    data.forEach(r => {
-        const key = r.BU || "Khác";
-        counts[key] = (counts[key] || 0) + 1;
-    });
-
-    chartBUInstance = new Chart(document.getElementById("chartBU"), {
+    new Chart(chartBU,{
         type:"pie",
         data:{
-            labels: Object.keys(counts),
-            datasets:[{
-                label: "Số phản hồi",
-                data:Object.values(counts),
-                backgroundColor:["#f97373","#60a5fa","#facc15","#4ade80","#a855f7","#fb923c"]
-            }]
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:["#ff6384","#36a2eb"] }]
         },
-        plugins: [ChartDataLabels],
-        options: pieAnimateCfg()
+        options:{ animation:{ duration:1200, easing:"easeOutBounce" } }
     });
 }
 
-function renderTeam(data) {
-    const counts = {};
-    data.forEach(r => {
-        const key = r.Team || "Khác";
-        counts[key] = (counts[key] || 0) + 1;
-    });
+function renderTeam(data){
+    const c = {};
+    data.forEach(r => c[r.Team] = (c[r.Team] || 0) + 1);
 
-    chartTeamInstance = new Chart(document.getElementById("chartTeam"), {
+    new Chart(chartTeam,{
         type:"bar",
         data:{
-            labels:Object.keys(counts),
-            datasets:[{
-                label:"Số phản hồi",
-                data:Object.values(counts),
-                backgroundColor:"#fb923c"
-            }]
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:"#ffa64d" }]
         },
-        plugins: [ChartDataLabels],
-        options: barAnimateCfg()
+        options:{
+            animation:{ duration:1500, easing:"easeOutElastic" }
+        }
     });
 }
 
-function renderNgayChinh(data) {
-    const counts = {};
-    data.forEach(r => {
-        const label = excelDate(r.NgayDieuChinh);
-        if (!label) return;
-        counts[label] = (counts[label] || 0) + 1;
-    });
+function renderTop(data){
+    const c = {};
+    data.forEach(r=> c[r.FullName] = (c[r.FullName]||0)+1);
+    let s = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
-    chartNgayInstance = new Chart(document.getElementById("chartNgayChinh"), {
+    new Chart(chartTop,{
         type:"bar",
         data:{
-            labels:Object.keys(counts),
-            datasets:[{
-                label:"Số phản hồi",
-                data:Object.values(counts),
-                backgroundColor:"#a855f7"
-            }]
+            labels:s.map(x=>x[0]),
+            datasets:[{ data:s.map(x=>x[1]), backgroundColor:"#00c9ff" }]
         },
-        plugins: [ChartDataLabels],
-        options: barAnimateCfg()
+        options:{
+            animation:{ duration:1000, easing:"easeOutQuad" }
+        }
     });
 }
 
-// ================== AUTO MUSIC ==================
+function renderNgay(data){
+    const c = {};
+    data.forEach(r=>{
+        let d = excelDate(r.NgayDieuChinh);
+        c[d] = (c[d]||0)+1;
+    });
+
+    new Chart(chartNgay,{
+        type:"bar",
+        data:{
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:"#9b59b6" }]
+        },
+        options:{ animation:{ duration:1200, easing:"easeOutBounce" } }
+    });
+}
+
+/* ================= DARK MODE ================= */
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+
+/* ================= AUTO MUSIC ================= */
 const music = document.getElementById("bgMusic");
-
-// PC cố play luôn
-music.play().catch(() => {});
-
-// iOS / Mobile: cần user tương tác
-document.addEventListener("touchstart", () => music.play(), { once: true });
-document.addEventListener("click", () => music.play(), { once: true });
+document.addEventListener("touchstart", ()=>music.play(), {once:true});
+document.addEventListener("click", ()=>music.play(), {once:true});
+music.play().catch(()=>{});
 </script>
 
 </body>
