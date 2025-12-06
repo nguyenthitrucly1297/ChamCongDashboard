@@ -59,19 +59,23 @@
 </head>
 <body>
   <h1>Dashboard Phản Hồi Chấm Công</h1>
-  <p>Cập nhật tự động từ SharePoint → OneDrive → Dashboard.</p>
+  <p>Cập nhật tự động từ PHẢN HỒI CHẤM CÔNG.</p>
 
   <script>
-    // ⭐⭐ LINK JSON OneDrive của bạn ⭐⭐
-    const JSON_URL = "https://ttigroup-my.sharepoint.com/:u:/g/personal/hoailuan_nguyen01_ttigroup_com_vn/IQCPvIqJNqnfRJWphSuQFz4QAQ3e4D391kftXWxpD9lwLsM?download=1";
+    // ⭐⭐ LINK JSON Onedrive đã xác nhận hoạt động ⭐⭐
+    const JSON_URL = "https://ttigroup-my.sharepoint.com/personal/hoailuan_nguyen01_ttigroup_com_vn/_layouts/15/download.aspx?SourceUrl=%2Fpersonal%2Fhoailuan%5Fnguyen01%5Fttigroup%5Fcom%5Fvn%2FDocuments%2FLuan%2FDashboard%2FChamCongDashboard%2Fdata%2Ejson";
 
     async function loadData() {
-      const res = await fetch(JSON_URL + "&_=" + Date.now());
-      const data = await res.json();
+      try {
+        const res = await fetch(JSON_URL + "&_=" + Date.now());
+        const data = await res.json();
 
-      renderTable(data);
-      renderSummary(data);
-      renderCharts(data);
+        renderTable(data);
+        renderSummary(data);
+        renderCharts(data);
+      } catch (err) {
+        console.error("Không thể tải JSON:", err);
+      }
     }
   </script>
 
