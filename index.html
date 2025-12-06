@@ -2,45 +2,114 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dashboard Phản Hồi Chấm Công</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
     body { font-family: Arial; margin: 20px; background: #fafafa; }
-    h2 { margin-top: 30px; }
-    .row-charts { display: flex; gap: 15px; margin-top: 25px; }
-    .chart-box { 
-        background: white; 
-        padding: 12px; 
-        border-radius: 10px; 
-        flex: 1; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        height: 260px;
+    h1 { margin-bottom: 5px; }
+    h2 { margin-top: 40px; }
+
+    .search { margin-bottom: 15px; }
+
+    input { padding: 8px; width: 200px; margin-right: 8px; }
+
+    /* Phần ô thống kê */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-    th, td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+
+    .box {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 20px; 
+        background: white; 
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    th, td { 
+        padding: 8px; 
+        border-bottom: 1px solid #ddd; 
+        font-size: 14px; 
+    }
+
     th { background: #f0f0f0; }
+
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
     .confirm-none { background: #ffe3e3; color: #c00; }
     .confirm-done { background: #d4ffe3; color: #007a2f; }
-    input { padding: 8px; width: 250px; margin-right: 10px; }
+
+    /* Autoplay iframe ẩn hoàn toàn */
+    .bg-music {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
 </style>
 </head>
 
 <body>
 
+<!-- 🎵 NHẠC TỰ PHÁT ẨN -->
+<iframe class="bg-music"
+src="https://www.youtube.com/embed/cTCAR86p5fM?autoplay=1&mute=1&loop=1&playlist=cTCAR86p5fM"
+frameborder="0"
+allow="autoplay">
+</iframe>
+
 <h1>Dashboard Phản Hồi Chấm Công</h1>
 <p>📌 Dữ liệu auto update từ PHẢN HỒI CHẤM CÔNG.</p>
 
 <!-- Ô tìm kiếm -->
-<div>
+<div class="search">
     <input id="searchMSNV" placeholder="Tìm theo MSNV…" />
     <input id="searchName" placeholder="Tìm theo họ tên…" />
     <button onclick="applySearch()">Lọc</button>
 </div>
 
-<!-- Danh sách chi tiết -->
+<h2>Thống kê</h2>
+
+<!-- 4 ô thống kê nhỏ -->
+<div class="stats-grid">
+    <div class="box">
+        <h3>Tổng quan</h3>
+        <canvas id="chartDays"></canvas>
+    </div>
+
+    <div class="box">
+        <h3>Top phản hồi</h3>
+        <canvas id="chartTop"></canvas>
+    </div>
+
+    <div class="box">
+        <h3>Theo BU</h3>
+        <canvas id="chartBU"></canvas>
+    </div>
+
+    <div class="box">
+        <h3>Theo Team</h3>
+        <canvas id="chartTeam"></canvas>
+    </div>
+</div>
+
+<!-- Danh sách -->
 <h2>Danh sách chi tiết</h2>
+
 <table id="dataTable">
     <thead>
         <tr>
@@ -58,57 +127,27 @@
     <tbody></tbody>
 </table>
 
-<!-- 4 biểu đồ nhỏ nằm hàng ngang -->
-<h2>Thống kê</h2>
-
-<div class="row-charts">
-    <div class="chart-box">
-        <h4>Tổng quan</h4>
-        <canvas id="chartDays"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <h4>Top phản hồi</h4>
-        <canvas id="chartTop"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <h4>Theo BU</h4>
-        <canvas id="chartBU"></canvas>
-    </div>
-
-    <div class="chart-box">
-        <h4>Theo Team</h4>
-        <canvas id="chartTeam"></canvas>
-    </div>
-</div>
-
 <script>
-// === JSON URL ===
 const jsonUrl = "https://hoailuan0311-code.github.io/ChamCongDashboard/data.json";
 
-// --- Convert Excel serial date → dd-MMM-yyyy ---
 function excelDateToString(v) {
     if (!v) return "";
     let d = new Date((v - 25569) * 86400 * 1000);
-    if (isNaN(d)) return v;
-    return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+    return isNaN(d) ? v : d.toLocaleDateString("en-GB", {
+        day: "2-digit", month: "short", year: "numeric"
+    });
 }
 
 let fullData = [];
 
-// ===== LOAD JSON =====
 async function loadData() {
     try {
         let res = await fetch(jsonUrl + "?cache=" + Date.now());
         fullData = await res.json();
         renderAll(fullData);
-    } catch (e) {
-        console.error("Load JSON lỗi:", e);
-    }
+    } catch(e) { console.error("Load lỗi:", e); }
 }
 
-// ===== RENDER TẤT CẢ =====
 function renderAll(data) {
     renderTable(data);
     renderSummary(data);
@@ -117,45 +156,41 @@ function renderAll(data) {
     renderTeam(data);
 }
 
-// ===== TABLE =====
 function renderTable(data) {
     const tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
 
-    data.forEach(row => {
+    data.forEach(r => {
         tbody.innerHTML += `
         <tr>
-            <td>${excelDateToString(row.Date)}</td>
-            <td>${row.MSNV || ""}</td>
-            <td>${row.FullName || ""}</td>
-            <td>${excelDateToString(row.NgayDieuChinh)}</td>
-            <td>${row.NoiDung || ""}</td>
-            <td>${row.Email || ""}</td>
-            <td>
-                <span class="badge ${row.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
-                    ${row.ConfirmAdmin || "Chưa phản hồi"}
-                </span>
+            <td>${excelDateToString(r.Date)}</td>
+            <td>${r.MSNV || ""}</td>
+            <td>${r.FullName || ""}</td>
+            <td>${excelDateToString(r.NgayDieuChinh)}</td>
+            <td>${r.NoiDung || ""}</td>
+            <td>${r.Email || ""}</td>
+            <td><span class="badge ${r.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
+                ${r.ConfirmAdmin || "Chưa phản hồi"}</span>
             </td>
-            <td>${row.BU || ""}</td>
-            <td>${row.Team || ""}</td>
+            <td>${r.BU || ""}</td>
+            <td>${r.Team || ""}</td>
         </tr>`;
     });
 }
 
-// ===== SEARCH =====
 function applySearch() {
-    let msnv = document.getElementById("searchMSNV").value.trim().toLowerCase();
-    let name = document.getElementById("searchName").value.trim().toLowerCase();
+    let ms = searchMSNV.value.trim().toLowerCase();
+    let na = searchName.value.trim().toLowerCase();
 
     let filtered = fullData.filter(r =>
-        (msnv === "" || (r.MSNV || "").toLowerCase().includes(msnv)) &&
-        (name === "" || (r.FullName || "").toLowerCase().includes(name))
+        (!ms || (r.MSNV || "").toLowerCase().includes(ms)) &&
+        (!na || (r.FullName || "").toLowerCase().includes(na))
     );
 
     renderAll(filtered);
 }
 
-// ===== BIỂU ĐỒ NGÀY =====
+/* BIỂU ĐỒ */
 function renderSummary(data) {
     const counts = {};
     data.forEach(r => {
@@ -163,74 +198,53 @@ function renderSummary(data) {
         counts[d] = (counts[d] || 0) + 1;
     });
 
-    new Chart(document.getElementById("chartDays"), {
+    new Chart(chartDays, {
         type: "bar",
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                label: "Số phản hồi",
-                data: Object.values(counts),
-                backgroundColor: "#4C8BF5"
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: { labels: Object.keys(counts),
+            datasets: [{ data: Object.values(counts), label:"Số phản hồi", backgroundColor:"#4C8BF5" }]
+        }
     });
 }
 
-// ===== TOP FEEDBACK =====
 function renderTopFeedback(data) {
     const counts = {};
     data.forEach(r => counts[r.FullName] = (counts[r.FullName] || 0) + 1);
 
-    let sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,10);
+    let top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
-    new Chart(document.getElementById("chartTop"), {
+    new Chart(chartTop, {
         type: "bar",
-        data: {
-            labels: sorted.map(x => x[0]),
-            datasets: [{
-                label: "Số phản hồi",
-                data: sorted.map(x => x[1]),
-                backgroundColor: "#00AEEF"
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: { labels: top.map(x=>x[0]),
+            datasets:[{ data: top.map(x=>x[1]), label:"Số phản hồi", backgroundColor:"#00AEEF" }]
+        }
     });
 }
 
-// ===== BU =====
 function renderBU(data) {
     const counts = {};
     data.forEach(r => counts[r.BU] = (counts[r.BU] || 0) + 1);
 
-    new Chart(document.getElementById("chartBU"), {
+    new Chart(chartBU, {
         type: "pie",
         data: {
             labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: ["#FF6384","#36A2EB","#FFCE56","#66BB6A","#BA68C8"]
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
+            datasets: [{ data: Object.values(counts),
+                backgroundColor:["#FF6384","#36A2EB","#FFCE56","#66BB6A"] }]
+        }
     });
 }
 
-// ===== TEAM =====
 function renderTeam(data) {
     const counts = {};
     data.forEach(r => counts[r.Team] = (counts[r.Team] || 0) + 1);
 
-    new Chart(document.getElementById("chartTeam"), {
+    new Chart(chartTeam, {
         type: "pie",
         data: {
             labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: ["#29B6F6","#FF7043","#9CCC65","#AB47BC","#FFD54F"]
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
+            datasets: [{ data: Object.values(counts),
+                backgroundColor:["#29B6F6","#FF7043","#9CCC65","#AB47BC","#FFD54F"] }]
+        }
     });
 }
 
