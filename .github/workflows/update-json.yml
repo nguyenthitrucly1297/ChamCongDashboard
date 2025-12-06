@@ -2,8 +2,7 @@ name: Sync JSON from OneDrive to GitHub
 
 on:
   schedule:
-    # chạy mỗi 5 phút
-    - cron: "*/5 * * * *"
+    - cron: "*/5 * * * *"   # chạy mỗi 5 phút
   workflow_dispatch:
 
 jobs:
@@ -13,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false   # BẮT BUỘC: để GitHub không dùng token bot
 
       - name: Download JSON from OneDrive
         run: |
@@ -24,18 +25,18 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "AutoSync"
+          git config user.email "autosync@example.com"
 
-          # Force change origin to use PAT instead of github-actions[bot]
+          # dùng PAT thay thế credential mặc định
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git
 
-          # Check if file changed
-          if [[ `git status --porcelain` ]]; then
+          # Kiểm tra thay đổi
+          if ! git diff --quiet; then
             echo "Detected changes → committing..."
             git add data.json
             git commit -m "Auto-sync data.json from OneDrive"
-            git push origin HEAD:main
+            git push origin main
           else
             echo "No changes detected"
           fi
