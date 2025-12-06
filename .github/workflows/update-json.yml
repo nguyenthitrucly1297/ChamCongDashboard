@@ -2,7 +2,7 @@ name: Sync JSON from OneDrive to GitHub
 
 on:
   schedule:
-    - cron: "*/5 * * * *"  # chạy mỗi 5 phút
+    - cron: "*/5 * * * *"   # chạy mỗi 5 phút
   workflow_dispatch:
 
 jobs:
@@ -10,32 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ---------------------------
-      # Step 1: Checkout repo
-      # ---------------------------
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ---------------------------
-      # Step 2: Download JSON + DEBUG
-      # ---------------------------
-      - name: Download JSON from OneDrive (with debug)
+      - name: Download JSON from OneDrive
         run: |
           echo "Downloading JSON from OneDrive..."
-
           curl -L \
-          "https://ttigroup-my.sharepoint.com/:u:/g/personal/hoailuan_nguyen01_ttigroup_com_vn/IQCPvIqJNqnfRJWphSuQFz4QAQ3e4D391kftXWxpD9lwLsM?e=sVxzMk&download=1" \
-          --output data.json
+            "https://ttigroup-my.sharepoint.com/personal/hoailuan_nguyen01_ttigroup_com_vn/_layouts/15/download.aspx?SourceUrl=%2Fpersonal%2Fhoailuan%5Fnguyen01%5Fttigroup%5Fcom%5Fvn%2FDocuments%2FLuan%2FDashboard%2FChamCongDashboard%2Fdata%2Ejson" \
+            --output data.json
 
-          echo "=== FILE SIZE ==="
-          wc -c data.json || true
+          echo "=== PREVIEW FIRST 200 CHARS ==="
+          head -c 200 data.json || true
 
-          echo "=== PREVIEW (first 300 chars) ==="
-          head -c 300 data.json || true
-
-      # ---------------------------
-      # Step 3: Commit changes
-      # ---------------------------
       - name: Commit updated JSON
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -43,15 +30,14 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Set remote URL with PAT to allow push
+          # Force origin to use PAT
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git
 
-          # Check if file changed
           if [[ `git status --porcelain` ]]; then
             echo "Detected changes → committing..."
             git add data.json
             git commit -m "Auto-sync data.json from OneDrive"
             git push origin HEAD:main
           else
-            echo "No changes detected → skip commit"
+            echo "No changes detected"
           fi
