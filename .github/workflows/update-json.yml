@@ -2,7 +2,7 @@ name: Sync JSON from OneDrive to GitHub
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # chạy mỗi 5 phút
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,31 +12,27 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false   # BẮT BUỘC: để GitHub không dùng token bot
 
       - name: Download JSON from OneDrive
         run: |
           curl -L \
-          "https://ttigroup-my.sharepoint.com/personal/hoailuan_nguyen01_ttigroup_com_vn/_layouts/15/download.aspx?SourceUrl=%2Fpersonal%2Fhoailuan%5Fnguyen01%5Fttigroup%5Fcom%5Fvn%2FDocuments%2FLuan%2FDashboard%2FChamCongDashboard%2Fdata%2Ejson" \
+          "https://ttigroup-my.sharepoint.com/:u:/g/personal/hoailuan_nguyen01_ttigroup_com_vn/IQCPvIqJNqnfRJWphSuQFz4QAQ3e4D391kftXWxpD9lwLsM?e=sVxzMk&download=1" \
           --output data.json
 
       - name: Commit updated JSON
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "AutoSync"
-          git config user.email "autosync@example.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
-          # dùng PAT thay thế credential mặc định
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git
 
-          # Kiểm tra thay đổi
-          if ! git diff --quiet; then
+          if [[ `git status --porcelain` ]]; then
             echo "Detected changes → committing..."
             git add data.json
             git commit -m "Auto-sync data.json from OneDrive"
-            git push origin main
+            git push origin HEAD:main
           else
             echo "No changes detected"
           fi
