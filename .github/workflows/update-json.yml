@@ -21,17 +21,21 @@ jobs:
           --output data.json
 
       - name: Commit updated JSON
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
+          # Force change origin to use PAT instead of github-actions[bot]
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git
+
+          # Check if file changed
           if [[ `git status --porcelain` ]]; then
             echo "Detected changes → committing..."
             git add data.json
             git commit -m "Auto-sync data.json from OneDrive"
-            git push https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git HEAD:main
+            git push origin HEAD:main
           else
-            echo "No changes detected → nothing to commit."
+            echo "No changes detected"
           fi
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
