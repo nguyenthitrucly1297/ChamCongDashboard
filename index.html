@@ -2,46 +2,28 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Phản Hồi Chấm Công</title>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
     body { font-family: Arial; margin: 20px; background: #fafafa; }
     h1 { margin-bottom: 5px; }
-    h2 { margin-top: 40px; }
-
-    .search { margin-bottom: 15px; }
-    input { padding: 8px; width: 200px; margin-right: 8px; }
-
-    /* KHỐI TRÊN: 2 ô */
-    .top-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    /* KHỐI DƯỚI: 2 ô */
-    .bottom-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-
+    h2 { margin-top: 25px; }
     .box {
         background: white;
         padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        height: 280px;
+        border-radius: 12px;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
     }
 
-    canvas {
-        width: 100% !important;
-        height: 200px !important;
+    /* Khu vực 4 charts nhỏ dưới cùng */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
     }
 
     table {
@@ -49,8 +31,6 @@
         border-collapse: collapse;
         margin-top: 20px;
         background: white;
-        border-radius: 10px;
-        overflow: hidden;
     }
     th, td {
         padding: 8px;
@@ -58,84 +38,80 @@
         font-size: 14px;
     }
     th { background: #f0f0f0; }
-
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+    input { padding: 8px; width: 240px; margin-right: 5px; }
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
     .confirm-none { background: #ffe3e3; color: #c00; }
     .confirm-done { background: #d4ffe3; color: #007a2f; }
-
-    /* Autoplay MP3 hidden */
-    audio {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-    }
 </style>
 </head>
 
 <body>
 
-<!-- 🎵 NHẠC TỰ PHÁT CÓ TIẾNG -->
+<!-- Auto play nhạc -->
 <audio autoplay loop>
-    <source src="https://filesamples.com/samples/audio/mp3/sample4.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/hoailuan0311-code/ChamCongDashboard/main/audio/background.mp3" type="audio/mpeg">
 </audio>
 
 <h1>Dashboard Phản Hồi Chấm Công</h1>
-<p>📌 Dữ liệu auto update từ PHẢN HỒI CHẤM CÔNG.</p>
+<p>📌 Dữ liệu được cập nhật tự động.</p>
 
-<!-- Search -->
-<div class="search">
-    <input id="searchMSNV" placeholder="Tìm theo MSNV…" />
-    <input id="searchName" placeholder="Tìm theo họ tên…" />
+<!-- Tìm kiếm -->
+<div>
+    <input id="searchMSNV" placeholder="Tìm theo MSNV…">
+    <input id="searchName" placeholder="Tìm theo họ tên…">
     <button onclick="applySearch()">Lọc</button>
 </div>
 
 <h2>Thống kê</h2>
 
-<!-- KHỐI TRÊN – 2 CHART -->
-<div class="top-stats">
-    <div class="box">
-        <h3>Tổng quan</h3>
-        <canvas id="chartDays"></canvas>
-    </div>
-
-    <div class="box">
-        <h3>Top phản hồi</h3>
-        <canvas id="chartTop"></canvas>
-    </div>
+<!-- Tổng quan -->
+<div class="box">
+    <h3>Tổng quan</h3>
+    <canvas id="chartDays"></canvas>
 </div>
 
-<!-- KHỐI DƯỚI – 2 CHART -->
-<div class="bottom-stats">
+<!-- Top phản hồi -->
+<div class="box">
+    <h3>Top phản hồi</h3>
+    <canvas id="chartTop"></canvas>
+</div>
+
+<!-- KHU VỰC 4 BIỂU ĐỒ NHỎ DƯỚI CÙNG -->
+<div class="stats-grid">
+
     <div class="box">
         <h3>Theo BU</h3>
         <canvas id="chartBU"></canvas>
     </div>
 
     <div class="box">
-        <h3>Theo Team</h3>
+        <h3>Theo Team (Bar Chart)</h3>
         <canvas id="chartTeam"></canvas>
     </div>
+
 </div>
 
-<!-- Table -->
 <h2>Danh sách chi tiết</h2>
+
 <table id="dataTable">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>MSNV</th>
-            <th>Họ tên</th>
-            <th>Ngày cần điều chỉnh</th>
-            <th>Nội dung</th>
-            <th>Email</th>
-            <th>Confirm Admin</th>
-            <th>BU</th>
-            <th>Team</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
+<thead>
+<tr>
+    <th>Date</th>
+    <th>MSNV</th>
+    <th>Họ tên</th>
+    <th>Ngày cần điều chỉnh</th>
+    <th>Nội dung</th>
+    <th>Email</th>
+    <th>Confirm Admin</th>
+    <th>BU</th>
+    <th>Team</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
 
 <script>
@@ -144,15 +120,13 @@ const jsonUrl = "https://hoailuan0311-code.github.io/ChamCongDashboard/data.json
 function excelDateToString(v) {
     if (!v) return "";
     let d = new Date((v - 25569) * 86400 * 1000);
-    return isNaN(d) ? v : d.toLocaleDateString("en-GB", {
-        day: "2-digit", month: "short", year: "numeric"
-    });
+    return isNaN(d) ? v : d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
 }
 
 let fullData = [];
 
 async function loadData() {
-    let res = await fetch(jsonUrl + "?cache=" + Date.now());
+    let res = await fetch(jsonUrl + "?t=" + Date.now());
     fullData = await res.json();
     renderAll(fullData);
 }
@@ -160,15 +134,14 @@ async function loadData() {
 function renderAll(data) {
     renderTable(data);
     renderSummary(data);
-    renderTopFeedback(data);
+    renderTop(data);
     renderBU(data);
     renderTeam(data);
 }
 
 function renderTable(data) {
-    const tbody = document.querySelector("#dataTable tbody");
+    let tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
-
     data.forEach(r => {
         tbody.innerHTML += `
         <tr>
@@ -188,85 +161,74 @@ function renderTable(data) {
 }
 
 function applySearch() {
-    let ms = searchMSNV.value.trim().toLowerCase();
-    let na = searchName.value.trim().toLowerCase();
+    let ms = searchMSNV.value.toLowerCase();
+    let nm = searchName.value.toLowerCase();
 
-    let filtered = fullData.filter(r =>
+    let f = fullData.filter(r =>
         (!ms || (r.MSNV || "").toLowerCase().includes(ms)) &&
-        (!na || (r.FullName || "").toLowerCase().includes(na))
+        (!nm || (r.FullName || "").toLowerCase().includes(nm))
     );
 
-    renderAll(filtered);
+    renderAll(f);
 }
 
-function chartOptions() {
-    return { responsive: true, maintainAspectRatio: false };
-}
-
+/* Tổng quan ngày */
 function renderSummary(data) {
-    const counts = {};
-    data.forEach(r => {
-        let d = excelDateToString(r.Date);
-        counts[d] = (counts[d] || 0) + 1;
-    });
-
+    let counts = {};
+    data.forEach(r => counts[r.Date] = (counts[r.Date] || 0) + 1);
     new Chart(chartDays, {
         type: "bar",
         data: {
-            labels: Object.keys(counts),
-            datasets:[{ data:Object.values(counts), label:"Số phản hồi", backgroundColor:"#4C8BF5" }]
-        },
-        options: chartOptions()
+            labels: Object.keys(counts).map(excelDateToString),
+            datasets: [{ label:"Số phản hồi", data:Object.values(counts), backgroundColor:"#4C8BF5" }]
+        }
     });
 }
 
-function renderTopFeedback(data) {
-    const counts = {};
-    data.forEach(r => counts[r.FullName] = (counts[r.FullName] || 0) + 1);
-
-    let top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
-
+/* Top phản hồi */
+function renderTop(data) {
+    let c = {};
+    data.forEach(r => c[r.FullName] = (c[r.FullName] || 0) + 1);
+    let top = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10);
     new Chart(chartTop, {
         type: "bar",
         data: {
             labels: top.map(x=>x[0]),
-            datasets:[{ data: top.map(x=>x[1]), label:"Số phản hồi", backgroundColor:"#00AEEF" }]
-        },
-        options: chartOptions()
+            datasets: [{ label:"Số phản hồi", data:top.map(x=>x[1]), backgroundColor:"#00AEEF" }]
+        }
     });
 }
 
+/* Theo BU */
 function renderBU(data) {
-    const counts = {};
-    data.forEach(r => counts[r.BU] = (counts[r.BU] || 0) + 1);
-
+    let c = {};
+    data.forEach(r => c[r.BU] = (c[r.BU] || 0) + 1);
     new Chart(chartBU, {
-        type: "pie",
-        data: {
-            labels: Object.keys(counts),
-            datasets:[{ 
-                data:Object.values(counts),
-                backgroundColor:["#FF6384","#36A2EB","#FFCE56","#66BB6A","#BA68C8"]
-            }]
-        },
-        options: chartOptions()
+        type:"pie",
+        data:{
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:["#FF6384","#36A2EB","#FFCE56","#4CAF50","#BA68C8"] }]
+        }
     });
 }
 
+/* Theo Team → BAR CHART */
 function renderTeam(data) {
-    const counts = {};
-    data.forEach(r => counts[r.Team] = (counts[r.Team] || 0) + 1);
-
+    let c = {};
+    data.forEach(r => c[r.Team] = (c[r.Team] || 0) + 1);
     new Chart(chartTeam, {
-        type: "pie",
-        data: {
-            labels: Object.keys(counts),
+        type:"bar",
+        data:{
+            labels:Object.keys(c),
             datasets:[{
-                data:Object.values(counts),
-                backgroundColor:["#29B6F6","#FF7043","#9CCC65","#AB47BC","#FFD54F"]
+                label:"Số phản hồi",
+                data:Object.values(c),
+                backgroundColor:"#FF8A65"
             }]
         },
-        options: chartOptions()
+        options:{
+            indexAxis: "y"
+        }
     });
 }
 
