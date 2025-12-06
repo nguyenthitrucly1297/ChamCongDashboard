@@ -6,76 +6,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial; margin: 0; padding: 20px; background: #f5f5f5; }
-        h1 { margin-bottom: 5px; }
-        .card { background: white; padding: 18px; margin-top: 15px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        table th, table td { border: 1px solid #ddd; padding: 8px; }
-        table th { background: #f0f0f0; }
-        .search-box { margin-top: 20px; padding: 10px; background: white; border-radius: 8px; }
-        .search-box input { padding: 8px; width: 300px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; }
-        .confirm-done { background: #d4fcd4; color: #0b7a0b; }
-        .confirm-none { background: #ffe2cc; color: #c44c00; }
+        body {
+            font-family: Arial, system-ui;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { margin: 0 0 4px 0; }
+        .sub-title { margin: 0 0 12px 0; color: #555; }
+
+        .card {
+            background: white;
+            padding: 18px;
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .search-box {
+            margin-top: 15px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .search-box input {
+            padding: 8px;
+            width: 260px;
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            font-size: 13px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+        }
+        table th {
+            background: #f0f0f0;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .confirm-done  { background: #d4fcd4; color: #0b7a0b; }
+        .confirm-none  { background: #ffe2cc; color: #c44c00; }
+
+        /* Nhóm chart nhỏ phía dưới */
+        .charts-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .chart-card {
+            background: white;
+            padding: 10px 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            flex: 1 1 320px;           /* 2 cái / hàng trên màn hình rộng */
+            min-width: 0;
+        }
+        .chart-card h2 {
+            font-size: 15px;
+            margin: 0 0 6px 0;
+        }
+        .chart-canvas {
+            width: 100%;
+            max-height: 220px;        /* làm chart nhỏ lại */
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 
 <body>
 
 <h1>Dashboard Phản Hồi Chấm Công</h1>
-<p>Dữ liệu tự động cập nhật PHẢN HỒI CHẤM CÔNG.</p>
+<p class="sub-title">Dữ liệu tự động cập nhật từ OneDrive → JSON → Dashboard.</p>
 
 <div class="search-box">
     🔍 <b>Tìm kiếm</b> (MSNV / Họ tên):
     <input id="searchInput" type="text" placeholder="Nhập MSNV hoặc tên..." />
 </div>
 
-<div class="card">
-    <h2>Tổng quan</h2>
-    <canvas id="chartSummary"></canvas>
-</div>
-
-<div class="card">
-    <h2>Top nhân viên gửi nhiều phản hồi</h2>
-    <canvas id="chartTop"></canvas>
-</div>
-
-<div class="card">
-    <h2>Thống kê theo BU</h2>
-    <canvas id="chartBU"></canvas>
-</div>
-
-<div class="card">
-    <h2>Thống kê theo Team</h2>
-    <canvas id="chartTeam"></canvas>
-</div>
-
+<!-- BẢNG CHÍNH – FULL WIDTH, TO -->
 <div class="card">
     <h2>Danh sách chi tiết</h2>
     <table id="dataTable">
         <thead>
-            <tr>
-                <th>Date</th>
-                <th>MSNV</th>
-                <th>Họ tên</th>
-                <th>Ngày cần điều chỉnh</th>
-                <th>Nội dung</th>
-                <th>Email</th>
-                <th>Confirm Admin</th>
-                <th>BU</th>
-                <th>Team</th>
-            </tr>
+        <tr>
+            <th>Date</th>
+            <th>MSNV</th>
+            <th>Họ tên</th>
+            <th>Ngày cần điều chỉnh</th>
+            <th>Nội dung</th>
+            <th>Email</th>
+            <th>Confirm Admin</th>
+            <th>BU</th>
+            <th>Team</th>
+        </tr>
         </thead>
         <tbody></tbody>
     </table>
 </div>
 
+<!-- 4 CHART NHỎ BÊN DƯỚI -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h2>Tổng quan theo ngày</h2>
+        <canvas id="chartSummary" class="chart-canvas"></canvas>
+    </div>
+    <div class="chart-card">
+        <h2>Top nhân viên gửi nhiều phản hồi</h2>
+        <canvas id="chartTop" class="chart-canvas"></canvas>
+    </div>
+    <div class="chart-card">
+        <h2>Thống kê theo BU</h2>
+        <canvas id="chartBU" class="chart-canvas"></canvas>
+    </div>
+    <div class="chart-card">
+        <h2>Thống kê theo Team</h2>
+        <canvas id="chartTeam" class="chart-canvas"></canvas>
+    </div>
+</div>
+
 <script>
 const JSON_URL = "data.json";
 
-/* =====================
-   LOAD JSON
-===================== */
+/* ========== LOAD JSON ========== */
 async function loadData() {
     try {
         const res = await fetch(JSON_URL + "?cache=" + Date.now());
@@ -86,9 +160,7 @@ async function loadData() {
     }
 }
 
-/* =====================
-   RENDER TABLE
-===================== */
+/* ========== TABLE ========== */
 function renderTable(data) {
     const tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
@@ -114,15 +186,12 @@ function renderTable(data) {
     });
 }
 
-/* =====================
-   DASHBOARD SUMMARY
-===================== */
+/* ========== CHART HELPERS ========== */
 function renderSummaryChart(data) {
     const grouped = {};
-
     data.forEach(r => {
-        if (!grouped[r.Date]) grouped[r.Date] = 0;
-        grouped[r.Date]++;
+        const key = r.Date || "N/A";
+        grouped[key] = (grouped[key] || 0) + 1;
     });
 
     new Chart(document.getElementById("chartSummary"), {
@@ -134,19 +203,20 @@ function renderSummaryChart(data) {
                 data: Object.values(grouped),
                 backgroundColor: "#4e73df"
             }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
 
-/* =====================
-   TOP EMPLOYEES
-===================== */
 function renderTopChart(data) {
     const count = {};
-
     data.forEach(r => {
-        if (!count[r.FullName]) count[r.FullName] = 0;
-        count[r.FullName]++;
+        const key = r.FullName || "N/A";
+        count[key] = (count[key] || 0) + 1;
     });
 
     const sorted = Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -155,19 +225,25 @@ function renderTopChart(data) {
         type: "bar",
         data: {
             labels: sorted.map(x=>x[0]),
-            datasets: [{ data: sorted.map(x=>x[1]), backgroundColor: "#1cc88a" }]
+            datasets: [{
+                data: sorted.map(x=>x[1]),
+                backgroundColor: "#1cc88a"
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
 
-/* =====================
-   BU + TEAM Chart
-===================== */
 function countField(data, field) {
     const map = {};
     data.forEach(r => {
-        if (!map[r[field]]) map[r[field]] = 0;
-        map[r[field]]++;
+        const key = r[field] || "N/A";
+        map[key] = (map[key] || 0) + 1;
     });
     return map;
 }
@@ -178,7 +254,15 @@ function renderBUChart(data) {
         type: "bar",
         data: {
             labels: Object.keys(grouped),
-            datasets: [{ data: Object.values(grouped), backgroundColor: "#ff6384" }]
+            datasets: [{
+                data: Object.values(grouped),
+                backgroundColor: "#ff6384"
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
@@ -189,17 +273,23 @@ function renderTeamChart(data) {
         type: "bar",
         data: {
             labels: Object.keys(grouped),
-            datasets: [{ data: Object.values(grouped), backgroundColor: "#36a2eb" }]
+            datasets: [{
+                data: Object.values(grouped),
+                backgroundColor: "#36a2eb"
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
 
-/* =====================
-   SEARCH
-===================== */
+/* ========== SEARCH ========== */
 function setupSearch(allData) {
     const box = document.getElementById("searchInput");
-    box.addEventListener("keyup", () => {
+    box.addEventListener("input", () => {
         const text = box.value.toLowerCase();
         const filtered = allData.filter(r =>
             (r.FullName || "").toLowerCase().includes(text) ||
@@ -209,9 +299,7 @@ function setupSearch(allData) {
     });
 }
 
-/* =====================
-   INIT
-===================== */
+/* ========== INIT ========== */
 loadData().then(data => {
     renderTable(data);
     renderSummaryChart(data);
