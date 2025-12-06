@@ -1,0 +1,36 @@
+name: Sync JSON from OneDrive to GitHub
+
+on:
+  schedule:
+    # chạy mỗi 5 phút
+    - cron: "*/5 * * * *"
+  workflow_dispatch:  # cho phép chạy tay
+  
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download JSON from OneDrive
+        run: |
+          curl -L \
+          "https://ttigroup-my.sharepoint.com/personal/hoailuan_nguyen01_ttigroup_com_vn/_layouts/15/download.aspx?SourceUrl=%2Fpersonal%2Fhoailuan%5Fnguyen01%5Fttigroup%5Fcom%5Fvn%2FDocuments%2FLuan%2FDashboard%2FChamCongDashboard%2Fdata%2Ejson" \
+          --output data.json
+
+      - name: Commit updated JSON
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          if [[ `git status --porcelain` ]]; then
+            git add data.json
+            git commit -m "Auto-sync data.json from OneDrive"
+            git push https://$GH_PAT@github.com/hoailuan0311-code/ChamCongDashboard.git HEAD:main
+          else
+            echo "No changes detected"
+          fi
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
