@@ -1,115 +1,66 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <title>Dashboard Phản Hồi Chấm Công</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, system-ui;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        h1 { margin: 0 0 4px 0; }
-        .sub-title { margin: 0 0 12px 0; color: #555; }
-
-        .card {
-            background: white;
-            padding: 18px;
-            margin-top: 15px;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .search-box {
-            margin-top: 15px;
-            padding: 10px 14px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .search-box input {
-            padding: 8px;
-            width: 260px;
-            max-width: 100%;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: white;
-            font-size: 13px;
-        }
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 6px 8px;
-        }
-        table th {
-            background: #f0f0f0;
-        }
-
-        .badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        .confirm-done  { background: #d4fcd4; color: #0b7a0b; }
-        .confirm-none  { background: #ffe2cc; color: #c44c00; }
-
-        /* Nhóm chart nhỏ phía dưới */
-        .charts-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .chart-card {
-            background: white;
-            padding: 10px 12px;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            flex: 1 1 320px;           /* 2 cái / hàng trên màn hình rộng */
-            min-width: 0;
-        }
-        .chart-card h2 {
-            font-size: 15px;
-            margin: 0 0 6px 0;
-        }
-        .chart-canvas {
-            width: 100%;
-            max-height: 220px;        /* làm chart nhỏ lại */
-        }
-
-        @media (max-width: 768px) {
-            .charts-grid {
-                flex-direction: column;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<title>Dashboard Phản Hồi Chấm Công</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body { font-family: Arial; margin: 20px; background: #fafafa; }
+    h2 { margin-top: 30px; }
+    .container { display: flex; gap: 20px; }
+    .box { background: white; padding: 15px; border-radius: 10px; flex: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+    th, td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+    th { background: #f0f0f0; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+    .confirm-none { background: #ffe3e3; color: #c00; }
+    .confirm-done { background: #d4ffe3; color: #007a2f; }
+    .small-box { flex: 0.5; }
+    input { padding: 8px; width: 250px; margin-right: 10px; }
+</style>
 </head>
-
 <body>
 
 <h1>Dashboard Phản Hồi Chấm Công</h1>
-<p class="sub-title">Dữ liệu tự động cập nhật từ OneDrive → JSON → Dashboard.</p>
+<p>📌 Dữ liệu auto update từ Excel → JSON → Dashboard</p>
 
-<div class="search-box">
-    🔍 <b>Tìm kiếm</b> (MSNV / Họ tên):
-    <input id="searchInput" type="text" placeholder="Nhập MSNV hoặc tên..." />
+<!-- Ô tìm kiếm -->
+<div>
+    <input id="searchMSNV" placeholder="Tìm theo MSNV…" />
+    <input id="searchName" placeholder="Tìm theo họ tên…" />
+    <button onclick="applySearch()">Lọc</button>
 </div>
 
-<!-- BẢNG CHÍNH – FULL WIDTH, TO -->
-<div class="card">
-    <h2>Danh sách chi tiết</h2>
-    <table id="dataTable">
-        <thead>
+<!-- Tổng quan + Top Feedback -->
+<div class="container">
+    <div class="box small-box">
+        <h3>Tổng quan</h3>
+        <canvas id="chartDays"></canvas>
+    </div>
+
+    <div class="box small-box">
+        <h3>Top nhân viên gửi nhiều phản hồi</h3>
+        <canvas id="chartTop"></canvas>
+    </div>
+</div>
+
+<!-- Thống kê BU + Team -->
+<div class="container">
+    <div class="box small-box">
+        <h3>Theo BU</h3>
+        <canvas id="chartBU"></canvas>
+    </div>
+
+    <div class="box small-box">
+        <h3>Theo Team</h3>
+        <canvas id="chartTeam"></canvas>
+    </div>
+</div>
+
+<!-- Danh sách chi tiết -->
+<h2>Danh sách chi tiết</h2>
+<table id="dataTable">
+    <thead>
         <tr>
             <th>Date</th>
             <th>MSNV</th>
@@ -121,193 +72,159 @@
             <th>BU</th>
             <th>Team</th>
         </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
-
-<!-- 4 CHART NHỎ BÊN DƯỚI -->
-<div class="charts-grid">
-    <div class="chart-card">
-        <h2>Tổng quan theo ngày</h2>
-        <canvas id="chartSummary" class="chart-canvas"></canvas>
-    </div>
-    <div class="chart-card">
-        <h2>Top nhân viên gửi nhiều phản hồi</h2>
-        <canvas id="chartTop" class="chart-canvas"></canvas>
-    </div>
-    <div class="chart-card">
-        <h2>Thống kê theo BU</h2>
-        <canvas id="chartBU" class="chart-canvas"></canvas>
-    </div>
-    <div class="chart-card">
-        <h2>Thống kê theo Team</h2>
-        <canvas id="chartTeam" class="chart-canvas"></canvas>
-    </div>
-</div>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <script>
-const JSON_URL = "data.json";
+// === URL JSON TRÊN ONEDRIVE (Flow cập nhật tự động) ===
+const jsonUrl = "https://hoailuan0311-code.github.io/ChamCongDashboard/data.json";
 
-/* ========== LOAD JSON ========== */
+// --- Convert Excel serial date → dd-MMM-yyyy ---
+function excelDateToString(v) {
+    if (!v) return "";
+    let d = new Date((v - 25569) * 86400 * 1000);
+    if (isNaN(d)) return v;
+    return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+}
+
+// ====== LOAD JSON ======
+let fullData = [];
+
 async function loadData() {
     try {
-        const res = await fetch(JSON_URL + "?cache=" + Date.now());
-        return await res.json();
+        let res = await fetch(jsonUrl + "?cache=" + Date.now());
+        fullData = await res.json();
+        renderAll(fullData);
     } catch (e) {
-        console.error("Lỗi load JSON:", e);
-        return [];
+        console.error("Load JSON lỗi:", e);
     }
 }
 
-/* ========== TABLE ========== */
+// ====== RENDER TẤT CẢ DASHBOARD ======
+function renderAll(data) {
+    renderTable(data);
+    renderSummary(data);
+    renderTopFeedback(data);
+    renderBU(data);
+    renderTeam(data);
+}
+
+// ====== BẢNG DỮ LIỆU ======
 function renderTable(data) {
     const tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
 
     data.forEach(row => {
         tbody.innerHTML += `
-            <tr>
-                <td>${row.Date || ""}</td>
-                <td>${row.MSNV || ""}</td>
-                <td>${row.FullName || ""}</td>
-                <td>${row.NgayDieuChinh || ""}</td>
-                <td>${row.NoiDung || ""}</td>
-                <td>${row.Email || ""}</td>
-                <td>
-                    <span class="badge ${row.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
-                        ${row.ConfirmAdmin ? row.ConfirmAdmin : "Chưa phản hồi"}
-                    </span>
-                </td>
-                <td>${row.BU || ""}</td>
-                <td>${row.Team || ""}</td>
-            </tr>
-        `;
+        <tr>
+            <td>${excelDateToString(row.Date)}</td>
+            <td>${row.MSNV || ""}</td>
+            <td>${row.FullName || ""}</td>
+            <td>${excelDateToString(row.NgayDieuChinh)}</td>
+            <td>${row.NoiDung || ""}</td>
+            <td>${row.Email || ""}</td>
+            <td>
+                <span class="badge ${row.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
+                    ${row.ConfirmAdmin || "Chưa phản hồi"}
+                </span>
+            </td>
+            <td>${row.BU || ""}</td>
+            <td>${row.Team || ""}</td>
+        </tr>`;
     });
 }
 
-/* ========== CHART HELPERS ========== */
-function renderSummaryChart(data) {
-    const grouped = {};
+// ====== TÌM KIẾM ======
+function applySearch() {
+    let msnv = document.getElementById("searchMSNV").value.trim().toLowerCase();
+    let name = document.getElementById("searchName").value.trim().toLowerCase();
+
+    let filtered = fullData.filter(r =>
+        (msnv === "" || (r.MSNV || "").toLowerCase().includes(msnv)) &&
+        (name === "" || (r.FullName || "").toLowerCase().includes(name))
+    );
+
+    renderAll(filtered);
+}
+
+// ====== BIỂU ĐỒ NGÀY ======
+function renderSummary(data) {
+    const counts = {};
     data.forEach(r => {
-        const key = r.Date || "N/A";
-        grouped[key] = (grouped[key] || 0) + 1;
+        let d = excelDateToString(r.Date);
+        counts[d] = (counts[d] || 0) + 1;
     });
 
-    new Chart(document.getElementById("chartSummary"), {
+    new Chart(document.getElementById("chartDays"), {
         type: "bar",
         data: {
-            labels: Object.keys(grouped),
+            labels: Object.keys(counts),
             datasets: [{
-                label: "Số feedback",
-                data: Object.values(grouped),
-                backgroundColor: "#4e73df"
+                label: "Số phản hồi",
+                data: Object.values(counts),
+                backgroundColor: "#4C8BF5"
             }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false
         }
     });
 }
 
-function renderTopChart(data) {
-    const count = {};
-    data.forEach(r => {
-        const key = r.FullName || "N/A";
-        count[key] = (count[key] || 0) + 1;
-    });
+// ====== TOP FEEDBACK ======
+function renderTopFeedback(data) {
+    const counts = {};
+    data.forEach(r => counts[r.FullName] = (counts[r.FullName] || 0) + 1);
 
-    const sorted = Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    let sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,10);
 
     new Chart(document.getElementById("chartTop"), {
         type: "bar",
         data: {
-            labels: sorted.map(x=>x[0]),
+            labels: sorted.map(x => x[0]),
             datasets: [{
-                data: sorted.map(x=>x[1]),
-                backgroundColor: "#1cc88a"
+                label: "Số phản hồi",
+                data: sorted.map(x => x[1]),
+                backgroundColor: "#00AEEF"
             }]
-        },
-        options: {
-            indexAxis: "y",
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false
         }
     });
 }
 
-function countField(data, field) {
-    const map = {};
-    data.forEach(r => {
-        const key = r[field] || "N/A";
-        map[key] = (map[key] || 0) + 1;
-    });
-    return map;
-}
+// ====== THEO BU ======
+function renderBU(data) {
+    const counts = {};
+    data.forEach(r => counts[r.BU] = (counts[r.BU] || 0) + 1);
 
-function renderBUChart(data) {
-    const grouped = countField(data, "BU");
     new Chart(document.getElementById("chartBU"), {
-        type: "bar",
+        type: "pie",
         data: {
-            labels: Object.keys(grouped),
+            labels: Object.keys(counts),
             datasets: [{
-                data: Object.values(grouped),
-                backgroundColor: "#ff6384"
+                data: Object.values(counts),
+                backgroundColor: ["#FF6384","#36A2EB","#FFCE56","#66BB6A","#BA68C8"]
             }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false
         }
     });
 }
 
-function renderTeamChart(data) {
-    const grouped = countField(data, "Team");
+// ====== THEO TEAM ======
+function renderTeam(data) {
+    const counts = {};
+    data.forEach(r => counts[r.Team] = (counts[r.Team] || 0) + 1);
+
     new Chart(document.getElementById("chartTeam"), {
-        type: "bar",
+        type: "pie",
         data: {
-            labels: Object.keys(grouped),
+            labels: Object.keys(counts),
             datasets: [{
-                data: Object.values(grouped),
-                backgroundColor: "#36a2eb"
+                data: Object.values(counts),
+                backgroundColor: ["#29B6F6","#FF7043","#9CCC65","#AB47BC","#FFD54F"]
             }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false
         }
     });
 }
 
-/* ========== SEARCH ========== */
-function setupSearch(allData) {
-    const box = document.getElementById("searchInput");
-    box.addEventListener("input", () => {
-        const text = box.value.toLowerCase();
-        const filtered = allData.filter(r =>
-            (r.FullName || "").toLowerCase().includes(text) ||
-            (r.MSNV || "").toLowerCase().includes(text)
-        );
-        renderTable(filtered);
-    });
-}
-
-/* ========== INIT ========== */
-loadData().then(data => {
-    renderTable(data);
-    renderSummaryChart(data);
-    renderTopChart(data);
-    renderBUChart(data);
-    renderTeamChart(data);
-    setupSearch(data);
-});
+// === RUN ===
+loadData();
 </script>
 
 </body>
