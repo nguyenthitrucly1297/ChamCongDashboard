@@ -3,260 +3,185 @@
 <head>
 <meta charset="UTF-8" />
 <title>📅 Dashboard Phản Hồi Chấm Công – WAREHOUSE RYOBI</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Font tiếng Việt -->
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
 
-<!-- ChartJS + DataLabels -->
+<!-- ChartJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <style>
-/* ===================== COLOR THEME (AUTO DARK MODE) ===================== */
+/* ===================== DARK MODE AUTO ===================== */
 :root {
-    --bg: radial-gradient(circle at top, #e0f7ff 0, #f5f7fa 40%, #edf2ff 100%);
-    --text: #111827;
-    --box: #ffffff;
-    --box-border: #d1d5db;
-    --accent: #22d3ee;
+    --bg: #f5f7fa;
+    --text: #111;
+    --box: #fff;
+    --box-border: #ddd;
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: radial-gradient(circle at top, #020617 0, #020617 40%, #0f172a 100%);
-        --text: #e5e7eb;
-        --box: #020617;
-        --box-border: #1f2933;
-        --accent: #38bdf8;
+        --bg: #121212;
+        --text: #eee;
+        --box: #1e1e1e;
+        --box-border: #333;
     }
 }
 
 /* ===================== GLOBAL ===================== */
-* { box-sizing: border-box; }
-
 body {
-    margin: 20px;
-    font-family: "Be Vietnam Pro", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: var(--text);
     background: var(--bg);
-    min-height: 100vh;
-    transition: background 0.3s ease, color 0.3s ease;
+    color: var(--text);
+    font-family: "Be Vietnam Pro", sans-serif;
+    margin: 20px;
+    transition: background 0.3s, color 0.3s;
 }
 
 /* ===================== TITLE ===================== */
 h1 {
     text-align: center;
-    font-size: 38px;
+    font-size: 42px;
     font-weight: 800;
-    margin: 0 0 6px 0;
-    letter-spacing: 0.04em;
+    margin-bottom: 10px;
     background: linear-gradient(90deg, #4facfe, #00f2fe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow:
-        0 0 10px rgba(56, 189, 248, 0.6),
-        0 0 24px rgba(59, 130, 246, 0.9);
+    text-shadow: 0 0 12px rgba(0,255,255,0.25);
 }
 
-h2 {
-    margin-top: 22px;
-    margin-bottom: 6px;
-    font-size: 20px;
-    font-weight: 700;
-}
+h2 { margin-top: 25px; }
 
-/* ===================== SEARCH BAR ===================== */
-.search-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
+/* ===================== SEARCH ===================== */
 .search-bar input {
-    padding: 8px 10px;
-    width: 190px;
-    border-radius: 999px;
+    padding: 8px;
+    width: 180px;
+    margin-right: 5px;
+    border-radius: 6px;
     border: 1px solid var(--box-border);
     background: var(--box);
     color: var(--text);
-    outline: none;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.02);
 }
 
 .search-bar button {
-    padding: 8px 14px;
-    border-radius: 999px;
-    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: 600;
-    background: linear-gradient(135deg, #f97316, #ec4899);
-    color: #fff;
-    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.35);
-    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    border: none;
+    background: #ccc;
 }
-.search-bar button:hover {
+
+/* Nút phản hồi chấm công */
+.feedback-btn {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    color: white;
+    font-weight: 600;
+    margin-left: 6px;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.35);
+}
+
+.feedback-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 14px 30px rgba(236, 72, 153, 0.45);
+    box-shadow: 0 14px 30px rgba(59, 130, 246, 0.45);
 }
 
 /* ===================== TABLE ===================== */
-.table-wrapper {
-    background: rgba(15, 23, 42, 0.03);
-    border-radius: 16px;
-    padding: 10px;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 15px;
     background: var(--box);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 th, td {
-    padding: 9px 10px;
+    padding: 10px;
     border-bottom: 1px solid var(--box-border);
-    font-size: 13px;
 }
 
 th {
-    background: rgba(15, 23, 42, 0.03);
-    text-align: left;
-    font-weight: 600;
-    user-select: none;
-}
-
-th.sortable {
+    background: rgba(0,0,0,0.05);
     cursor: pointer;
-}
-
-tbody tr:nth-child(2n) {
-    background-color: rgba(148, 163, 184, 0.04);
 }
 
 /* Badge */
 .badge {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
     color: #fff;
-    white-space: nowrap;
 }
-.confirm-none  { background: #f97373; }
-.confirm-done  { background: #22c55e; }
+.confirm-none { background: #ff6b6b; }
+.confirm-done { background: #2ecc71; }
 
-/* ===================== PAGINATION ===================== */
-.pagination {
-    margin-top: 8px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-}
-
-.pagination button {
-    padding: 5px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--box-border);
-    background: var(--box);
-    color: var(--text);
-    cursor: pointer;
-    min-width: 80px;
-}
-.pagination button:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-
-/* ===================== CHARTS ===================== */
+/* ===================== CHART BOXES ===================== */
 .chart-box {
     background: var(--box);
-    border-radius: 16px;
-    padding: 14px 14px 10px 14px;
-    margin-top: 16px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-    border: 1px solid rgba(148,163,184,0.35);
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px solid var(--box-border);
 }
 
-.chart-box h3 {
-    margin: 0 0 6px 0;
-    font-size: 15px;
-}
-
-/* Layout footer charts */
 .footer-layout {
     display: grid;
-    gap: 16px;
+    gap: 20px;
 }
 
 .footer-row {
     display: grid;
-    grid-template-columns: minmax(0,1fr) minmax(0,2fr);
-    gap: 16px;
-}
-.full-row {
-    grid-column: 1 / -1;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .footer-row { grid-template-columns: minmax(0,1fr); }
-}
+.full-row { grid-column: 1 / -1; }
 
 /* ===================== AUDIO ===================== */
 audio { display: none; }
 
 </style>
 </head>
+
 <body>
 
 <h1>Dashboard Phản Hồi Chấm Công – WAREHOUSE RYOBI</h1>
+
 <p>🕓 Dữ liệu được cập nhật tự động ❤️🫶❤️</p>
 
 <!-- SEARCH -->
 <div class="search-bar">
-    <input id="searchMSNV" placeholder="Tìm theo MSNV…" />
-    <input id="searchName" placeholder="Tìm theo họ tên…" />
+    <input id="searchMSNV" placeholder="Tìm theo MSNV…">
+    <input id="searchName" placeholder="Tìm theo họ tên…">
+
     <button id="clearFilterBtn">Xóa lọc</button>
+
+    <!-- ⭐ NÚT MỚI: PHẢN HỒI CHẤM CÔNG -->
+    <button id="feedbackBtn" class="feedback-btn">📝 Phản hồi chấm công</button>
 </div>
 
 <h2>Danh sách chi tiết</h2>
 
-<div class="table-wrapper">
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th class="sortable" data-col="MSNV">MSNV ⬍</th>
-                <th>Họ tên</th>
-                <th class="sortable" data-col="NgayDieuChinh">Ngày cần điều chỉnh ⬍</th>
-                <th>Nội dung</th>
-                <th>Confirm</th>
-                <th>BU</th>
-                <th>Team</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <div class="pagination">
-        <span id="pageInfo">Trang 1/1</span>
-        <button id="prevPageBtn">Trang trước</button>
-        <button id="nextPageBtn">Trang sau</button>
-    </div>
-</div>
+<table id="dataTable">
+    <thead>
+        <tr>
+            <th onclick="sortBy('MSNV')">MSNV ⬍</th>
+            <th>Họ tên</th>
+            <th onclick="sortBy('NgayDieuChinh')">Ngày điều chỉnh ⬍</th>
+            <th>Nội dung</th>
+            <th>Confirm</th>
+            <th>BU</th>
+            <th>Team</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <!-- FOOTER CHARTS -->
 <h2>Biểu đồ phụ</h2>
 
 <div class="footer-layout">
 
-    <!-- Row 1: BU + Team -->
     <div class="footer-row">
         <div class="chart-box">
             <h3>Theo BU</h3>
@@ -269,383 +194,183 @@ audio { display: none; }
         </div>
     </div>
 
-    <!-- Row 2: Top phản hồi -->
     <div class="chart-box full-row">
         <h3>Top phản hồi</h3>
         <canvas id="chartTop"></canvas>
     </div>
 
-    <!-- Row 3: Theo ngày chỉnh -->
     <div class="chart-box full-row">
         <h3>Theo ngày chỉnh</h3>
         <canvas id="chartNgay"></canvas>
     </div>
+
 </div>
 
-<!-- BACKGROUND MUSIC -->
+<!-- Background Music -->
 <audio id="bgMusic" loop>
-    <!-- Đổi tên file này cho khớp repo của bạn -->
-    <source src="NhacGiangSinh.mp3" type="audio/mpeg" />
+    <source src="NhacGiangSinh.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-/* ===================== CONFIG ===================== */
 const jsonUrl = "https://hoailuan0311-code.github.io/ChamCongDashboard/data.json";
-const ROWS_PER_PAGE = 30;
-
 let fullData = [];
-let viewData = [];          // dữ liệu sau khi filter/sort
-let currentPage = 1;
-let sortState = { col: null, dir: 1 }; // 1 = asc, -1 = desc
 
-// Chart instances (để destroy trước khi vẽ lại)
-let chartBUInst = null;
-let chartTeamInst = null;
-let chartTopInst = null;
-let chartNgayInst = null;
-
-// Lấy màu chữ hiện tại -> dùng cho DataLabels
-function getLabelColor() {
-    const rootStyle = getComputedStyle(document.documentElement);
-    const c = rootStyle.getPropertyValue("--text").trim();
-    return c || "#111";
-}
-
-// Convert Excel serial date → dd-MMM-yyyy
-function excelDate(v) {
-    if (!v) return "";
-    const d = new Date((v - 25569) * 86400 * 1000);
-    if (isNaN(d)) return v;
-    return d.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-}
-
-/* ===================== LOAD DATA ===================== */
-async function loadData() {
-    const res = await fetch(jsonUrl + "?cache=" + Date.now());
+/* ================= LOAD DATA ================= */
+async function loadData(){
+    let res = await fetch(jsonUrl + "?cache=" + Date.now());
     fullData = await res.json();
-    // ban đầu: viewData = fullData
-    applyFilterAndSort();
+    renderAll(fullData);
 }
 loadData();
 
-/* ===================== FILTER + SORT + PAGINATION ===================== */
-const searchMSNV = document.getElementById("searchMSNV");
-const searchName = document.getElementById("searchName");
-const clearFilterBtn = document.getElementById("clearFilterBtn");
+/* ================= FORMAT DATE ================= */
+function excelDate(v){
+    if (!v) return "";
+    const d = new Date((v - 25569) * 86400 * 1000);
+    return isNaN(d) ? v : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+}
 
-searchMSNV.addEventListener("input", () => applyFilterAndSort(true));
-searchName.addEventListener("input", () => applyFilterAndSort(true));
+/* ================= SEARCH REALTIME ================= */
+document.getElementById("searchMSNV").addEventListener("input", applySearch);
+document.getElementById("searchName").addEventListener("input", applySearch);
 
-clearFilterBtn.addEventListener("click", () => {
-    searchMSNV.value = "";
-    searchName.value = "";
-    sortState = { col: null, dir: 1 };
-    currentPage = 1;
-    applyFilterAndSort();
-});
+function applySearch(){
+    let ms = searchMSNV.value.toLowerCase();
+    let nm = searchName.value.toLowerCase();
 
-function applyFilterAndSort(resetPage = false) {
-    let ms = searchMSNV.value.trim().toLowerCase();
-    let nm = searchName.value.trim().toLowerCase();
-
-    viewData = fullData.filter(r =>
-        (!ms || String(r.MSNV || "").toLowerCase().includes(ms)) &&
-        (!nm || String(r.FullName || "").toLowerCase().includes(nm))
+    let f = fullData.filter(r =>
+        (!ms || (r.MSNV+"").includes(ms)) &&
+        (!nm || (r.FullName+"").toLowerCase().includes(nm))
     );
 
-    if (sortState.col) {
-        const col = sortState.col;
-        const dir = sortState.dir;
-        viewData.sort((a, b) => {
-            const va = a[col] ?? "";
-            const vb = b[col] ?? "";
-            if (va > vb) return dir;
-            if (va < vb) return -dir;
-            return 0;
-        });
-    }
-
-    if (resetPage) currentPage = 1;
-    renderAll();
+    renderAll(f);
 }
 
-/* ===================== SORT HANDLERS ===================== */
-document.querySelectorAll("th.sortable").forEach(th => {
-    th.addEventListener("click", () => {
-        const col = th.dataset.col;
-        if (sortState.col === col) {
-            sortState.dir *= -1;         // đảo chiều sort
-        } else {
-            sortState.col = col;
-            sortState.dir = 1;
-        }
-        currentPage = 1;
-        applyFilterAndSort();
-    });
-});
+/* ================= SORT ================= */
+function sortBy(col){
+    fullData.sort((a,b)=> (a[col] > b[col] ? 1 : -1));
+    renderAll(fullData);
+}
 
-/* ===================== PAGINATION HANDLERS ===================== */
-const prevPageBtn = document.getElementById("prevPageBtn");
-const nextPageBtn = document.getElementById("nextPageBtn");
-const pageInfo = document.getElementById("pageInfo");
-
-prevPageBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-        currentPage--;
-        renderTable();
-    }
-});
-
-nextPageBtn.addEventListener("click", () => {
-    const totalPages = Math.max(1, Math.ceil(viewData.length / ROWS_PER_PAGE));
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderTable();
-    }
-});
-
-/* ===================== RENDER TABLE ===================== */
-function renderTable() {
-    const tbody = document.querySelector("#dataTable tbody");
+/* ================= RENDER TABLE ================= */
+function renderTable(data){
+    let tbody = document.querySelector("#dataTable tbody");
     tbody.innerHTML = "";
 
-    const totalPages = Math.max(1, Math.ceil(viewData.length / ROWS_PER_PAGE));
-    if (currentPage > totalPages) currentPage = totalPages;
-
-    const start = (currentPage - 1) * ROWS_PER_PAGE;
-    const end = start + ROWS_PER_PAGE;
-    const pageData = viewData.slice(start, end);
-
-    pageData.forEach(r => {
+    data.forEach(r=>{
         tbody.innerHTML += `
-            <tr>
-                <td>${r.MSNV ?? ""}</td>
-                <td>${r.FullName ?? ""}</td>
-                <td>${excelDate(r.NgayDieuChinh)}</td>
-                <td>${r.NoiDung ?? ""}</td>
-                <td>
-                    <span class="badge ${r.ConfirmAdmin ? "confirm-done" : "confirm-none"}">
-                        ${r.ConfirmAdmin || "Chưa phản hồi"}
-                    </span>
-                </td>
-                <td>${r.BU ?? ""}</td>
-                <td>${r.Team ?? ""}</td>
-            </tr>
+        <tr>
+            <td>${r.MSNV}</td>
+            <td>${r.FullName}</td>
+            <td>${excelDate(r.NgayDieuChinh)}</td>
+            <td>${r.NoiDung || ""}</td>
+            <td><span class="badge ${r.ConfirmAdmin ? "confirm-done":"confirm-none"}">
+                ${r.ConfirmAdmin || "Chưa phản hồi"}
+            </span></td>
+            <td>${r.BU || ""}</td>
+            <td>${r.Team || ""}</td>
+        </tr>
         `;
     });
-
-    pageInfo.textContent = `Trang ${currentPage}/${totalPages}`;
-    prevPageBtn.disabled = currentPage <= 1;
-    nextPageBtn.disabled = currentPage >= totalPages;
 }
 
-/* ===================== RENDER CHARTS ===================== */
+/* ================= RENDER ALL ================= */
+function renderAll(data){
+    renderTable(data);
+    renderBU(data);
+    renderTeam(data);
+    renderTop(data);
+    renderNgay(data);
+}
+
+/* ================= CHART FUNCTIONS ================= */
+
 Chart.register(ChartDataLabels);
 
-function renderAll() {
-    renderTable();
-    renderBU();
-    renderTeam();
-    renderTop();
-    renderNgay();
-}
+function renderBU(data){
+    const c = {};
+    data.forEach(r => c[r.BU] = (c[r.BU] || 0) + 1);
 
-function destroyIfExists(chartInstance) {
-    if (chartInstance && typeof chartInstance.destroy === "function") {
-        chartInstance.destroy();
-    }
-}
-
-function renderBU() {
-    const counts = {};
-    viewData.forEach(r => {
-        const key = r.BU || "Khác";
-        counts[key] = (counts[key] || 0) + 1;
-    });
-
-    destroyIfExists(chartBUInst);
-
-    chartBUInst = new Chart(document.getElementById("chartBU"), {
+    new Chart(chartBU, {
         type: "pie",
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: ["#fb7185", "#3b82f6", "#22c55e", "#f97316", "#a855f7"]
-            }]
-        },
+        data: { labels: Object.keys(c), datasets: [{ data:Object.values(c), backgroundColor:["#ff6384","#36a2eb"] }]},
         plugins: [ChartDataLabels],
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: "bottom" },
-                datalabels: {
-                    color: "#ffffff",
-                    font: { weight: "bold", size: 11 },
-                    formatter: (v) => v
-                }
-            },
-            animation: {
-                duration: 1100,
-                easing: "easeOutBack"
-            }
+        options:{
+            animation:{ duration:1200, easing:"easeOutBounce" },
+            plugins:{ datalabels:{ color:"#fff", font:{weight:"bold"} } }
         }
     });
 }
 
-function renderTeam() {
-    const counts = {};
-    viewData.forEach(r => {
-        const key = r.Team || "Khác";
-        counts[key] = (counts[key] || 0) + 1;
-    });
+function renderTeam(data){
+    const c = {};
+    data.forEach(r => c[r.Team] = (c[r.Team] || 0) + 1);
 
-    destroyIfExists(chartTeamInst);
-
-    chartTeamInst = new Chart(document.getElementById("chartTeam"), {
-        type: "bar",
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                label: "Số phản hồi",
-                data: Object.values(counts),
-                backgroundColor: "#f97316"
-            }]
+    new Chart(chartTeam,{
+        type:"bar",
+        data:{
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:"#ffa64d" }]
         },
-        plugins: [ChartDataLabels],
-        options: {
-            indexAxis: "x",
-            responsive: true,
-            scales: {
-                x: {
-                    ticks: {
-                        autoSkip: false,
-                        maxRotation: 60,
-                        minRotation: 30
-                    }
-                },
-                y: { beginAtZero: true }
-            },
-            plugins: {
-                legend: { display: false },
-                datalabels: {
-                    anchor: "end",
-                    align: "top",
-                    color: getLabelColor(),
-                    font: { weight: "bold", size: 11 }
-                }
-            },
-            animation: {
-                duration: 1200,
-                easing: "easeOutElastic"
-            }
+        plugins:[ChartDataLabels],
+        options:{
+            animation:{ duration:1200, easing:"easeOutElastic" },
+            plugins:{ datalabels:{ anchor:"end", align:"top", color:"#fff", font:{weight:"bold"} } }
         }
     });
 }
 
-function renderTop() {
-    const counts = {};
-    viewData.forEach(r => {
-        const key = r.FullName || "Không tên";
-        counts[key] = (counts[key] || 0) + 1;
-    });
+function renderTop(data){
+    const c = {};
+    data.forEach(r => c[r.FullName] = (c[r.FullName]||0)+1);
 
-    const sorted = Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
+    let sorted = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
-    destroyIfExists(chartTopInst);
-
-    chartTopInst = new Chart(document.getElementById("chartTop"), {
-        type: "bar",
-        data: {
-            labels: sorted.map(x => x[0]),
-            datasets: [{
-                label: "Số phản hồi",
-                data: sorted.map(x => x[1]),
-                backgroundColor: "#0ea5e9"
-            }]
+    new Chart(chartTop,{
+        type:"bar",
+        data:{
+            labels:sorted.map(x=>x[0]),
+            datasets:[{ data:sorted.map(x=>x[1]), backgroundColor:"#00c9ff" }]
         },
-        plugins: [ChartDataLabels],
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            },
-            plugins: {
-                legend: { display: false },
-                datalabels: {
-                    anchor: "end",
-                    align: "top",
-                    color: getLabelColor(),
-                    font: { weight: "bold", size: 11 }
-                }
-            },
-            animation: {
-                duration: 1300,
-                easing: "easeOutQuad"
-            }
+        plugins:[ChartDataLabels],
+        options:{
+            animation:{ duration:1400, easing:"easeOutQuad" },
+            plugins:{ datalabels:{ anchor:"end", align:"top", color:"#fff", font:{weight:"bold"} } }
         }
     });
 }
 
-function renderNgay() {
-    const counts = {};
-    viewData.forEach(r => {
-        const d = excelDate(r.NgayDieuChinh);
-        if (!d) return;
-        counts[d] = (counts[d] || 0) + 1;
+function renderNgay(data){
+    const c = {};
+    data.forEach(r => {
+        let d = excelDate(r.NgayDieuChinh);
+        c[d] = (c[d]||0)+1;
     });
 
-    destroyIfExists(chartNgayInst);
-
-    chartNgayInst = new Chart(document.getElementById("chartNgay"), {
-        type: "bar",
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                label: "Số phản hồi",
-                data: Object.values(counts),
-                backgroundColor: "#a855f7"
-            }]
+    new Chart(chartNgay,{
+        type:"bar",
+        data:{
+            labels:Object.keys(c),
+            datasets:[{ data:Object.values(c), backgroundColor:"#9b59b6" }]
         },
-        plugins: [ChartDataLabels],
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            },
-            plugins: {
-                legend: { display: false },
-                datalabels: {
-                    anchor: "end",
-                    align: "top",
-                    color: getLabelColor(),
-                    font: { weight: "bold", size: 11 }
-                }
-            },
-            animation: {
-                duration: 1400,
-                easing: "easeOutBounce"
-            }
+        plugins:[ChartDataLabels],
+        options:{
+            animation:{ duration:1500, easing:"easeOutBounce" },
+            plugins:{ datalabels:{ anchor:"end", align:"top", color:"#fff", font:{weight:"bold"} } }
         }
     });
 }
 
-/* ===================== BACKGROUND MUSIC ===================== */
-const bgMusic = document.getElementById("bgMusic");
+/* ================= BUTTON MỞ FORM PHẢN HỒI ================= */
+document.getElementById("feedbackBtn").addEventListener("click", () => {
+    window.open("https://forms.office.com/r/wSm7WHpgCw", "_blank");
+});
 
-// PC – cố gắng autoplay
-bgMusic.play().catch(() => { /* ignore */ });
-
-// Mobile / iOS cần tương tác
-document.addEventListener("click", () => bgMusic.play().catch(() => {}), { once: true });
-document.addEventListener("touchstart", () => bgMusic.play().catch(() => {}), { once: true });
+/* ================= BACKGROUND MUSIC ================= */
+document.addEventListener("click", ()=> bgMusic.play(), {once:true});
+document.addEventListener("touchstart", ()=> bgMusic.play(), {once:true});
 
 </script>
+
 </body>
 </html>
