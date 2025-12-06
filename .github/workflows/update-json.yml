@@ -4,8 +4,8 @@ on:
   schedule:
     # chạy mỗi 5 phút
     - cron: "*/5 * * * *"
-  workflow_dispatch:  # cho phép chạy tay
-  
+  workflow_dispatch:
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -26,11 +26,12 @@ jobs:
           git config user.email "actions@github.com"
 
           if [[ `git status --porcelain` ]]; then
+            echo "Detected changes → committing..."
             git add data.json
             git commit -m "Auto-sync data.json from OneDrive"
-            git push https://$GH_PAT@github.com/hoailuan0311-code/ChamCongDashboard.git HEAD:main
+            git push https://x-access-token:${GH_PAT}@github.com/hoailuan0311-code/ChamCongDashboard.git HEAD:main
           else
-            echo "No changes detected"
+            echo "No changes detected → nothing to commit."
           fi
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
